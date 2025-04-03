@@ -1,16 +1,14 @@
 const express = require("express");
 const authRoutes = require("./auth/index");
+const userRoutes = require("./user/index");
 
 const router = express.Router();
 
-// Example sub-routes
-
-// Mount sub-routes
 router.use("/auth", authRoutes);
+router.use("/user", userRoutes);
 
-// Health check route
 router.get("/", (req, res) => {
-  res.send("API is working!");
+  res.send("API WORKING!");
 });
 
 module.exports = router;
