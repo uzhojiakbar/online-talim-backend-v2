@@ -1,0 +1,130 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Online Ta'lim - Auth API",
+    "version": "2.1.1",
+    "description": "This is the API documentation for the Online Ta'lim application. This section covers authentication, including login and registration."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5013",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Foydaluvchini tizimga kirishi",
+        "description": "Foydaluvchini tizimga kirishi uchun username va password orqali autentifikatsiya qilish",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "string"
+                  }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new user",
+        "description": "Register a user with role (admin, user, teacher)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "asd-admin1"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "asd-admin1"
+                  },
+                  "firstname": {
+                    "type": "string",
+                    "example": "User Test"
+                  },
+                  "lastname": {
+                    "type": "string",
+                    "example": "Murodillayev"
+                  },
+                  "group": {
+                    "type": "string",
+                    "example": "36-att-23"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["admin", "user", "teacher"],
+                    "example": "admin"
+                  }
+                },
+                "required": [
+                  "username",
+                  "password",
+                  "firstname",
+                  "lastname",
+                  "group",
+                  "role"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully"
+          },
+          "400": {
+            "description": "Invalid input or user already exists"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Avtorizatsiya uchun pointlar"
+    }
+  ]
+}
