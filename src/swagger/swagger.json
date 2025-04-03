@@ -374,6 +374,59 @@
           }
         }
       }
+    },
+    "/api/user/profile": {
+      "patch": {
+        "tags": ["User"],
+        "summary": "Foydalanuvchi profilini yangilash",
+        "description": "Faqat yuborilgan maydonlar yangilanadi, qolganlari eski holatda qoladi.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstname": { "type": "string", "example": "Ali" },
+                  "lastname": { "type": "string", "example": "Valiyev" },
+                  "group_name": { "type": "string", "example": "36-TAT-21" },
+                  "role": {
+                    "type": "string",
+                    "enum": ["user", "admin", "teacher"],
+                    "example": "user"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profil yangilandi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Profil yangilandi"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Yangilashda server xatosi"
+          }
+        }
+      }
     }
   },
   "tags": [

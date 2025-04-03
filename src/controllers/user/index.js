@@ -86,9 +86,60 @@ const changePassword = (req, res) => {
   );
 };
 
+const updateProfile = (req, res) => {
+  const { firstname, lastname, group_name, role } = req.body;
+  const selectQuery = `SELECT * FROM users WHERE id = ?`;
+  db.get(selectQuery, [req.user.sub], (err, user) => {
+    if (err)
+      return res.status(500).json({ error: "Ma’lumotni olishda xatolik" });
+    if (!user)
+      return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+
+    const updatedFirstname = firstname || user.firstname;
+    const updatedLastname = lastname || user.lastname;
+    const updatedGroup = group_name || user.group_name;
+    const updatedRole = user.role;
+
+    const updateQuery = `UPDATE users SET firstname = ?, lastname = ?, group_name = ?, role = ? WHERE id = ?`;
+    db.run(
+      updateQuery,
+      [
+        updatedFirstname,
+        updatedLastname,
+        updatedGroup,
+        updatedRole,
+        req.user.sub,
+      ],
+      function (err) {
+        if (err) return res.status(500).json({ error: "Yangilashda xatolik" });
+        res.status(200).json({ message: "Profil yangilandi" });
+      }
+    );
+  });
+};
+
+// const deleteUserByAdmin = (req, res) => {
+//     const query = `DELETE FROM users WHERE id = ?`;
+//     db.run(query, [req.params.id], function (err) {
+//       if (err) return res.status(500).json({ error: "Admin o‘chirishda xatolik" });
+//       res.status(200).json({ message: "Foydalanuvchi o‘chirildi" });
+//     });
+//   };
+
+//   const resetPasswordByAdmin = (req, res) => {
+//     const defaultPassword = "123456";
+//     const hash = bcrypt.hashSync(defaultPassword, 10);
+//     const query = `UPDATE users SET password = ? WHERE id = ?`;
+//     db.run(query, [hash, req.params.id], function (err) {
+//       if (err) return res.status(500).json({ error: "Parolni reset qilishda xatolik" });
+//       res.status(200).json({ message: "Parol muvaffaqiyatli tiklandi", newPassword: defaultPassword });
+//     });
+//   };
+
 module.exports = {
   getMe,
   deleteMe,
   comparePassword,
   changePassword,
+  updateProfile,
 };
