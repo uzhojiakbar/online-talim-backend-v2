@@ -1,4 +1,5 @@
 const { db } = require("../../db/db");
+const bcrypt = require("bcrypt");
 
 const getMe = (req, res) => {
   const query = `SELECT id, username, firstname, lastname, group_name, role FROM users WHERE id = ?`;
@@ -34,7 +35,60 @@ const deleteMe = (req, res) => {
   });
 };
 
+const comparePassword = (req, res) => {
+  const { password } = req.body;
+  if (!password) return res.status(400).json({ error: "Parol talab qilinadi" });
+  db.get(
+    `SELECT password FROM users WHERE id = ?`,
+    [req.user.sub],
+    async (err, row) => {
+      if (err)
+        return res.status(500).json({ error: "Bazadan o‘qishda xatolik" });
+      const match = await bcrypt.compare(password, row.password);
+      res.status(200).json({ response: match });
+    }
+  );
+};
+
+const changePassword = (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  if (!oldPassword || !newPassword || newPassword.length < 6) {
+    return res.status(400).json({
+      error:
+        "Parollar to‘liq va yangi parol kamida 6 belgidan iborat bo‘lishi kerak",
+    });
+  }
+  db.get(
+    `SELECT password FROM users WHERE id = ?`,
+    [req.user.sub],
+    async (err, row) => {
+      if (err)
+        return res.status(500).json({ error: "Bazadan o‘qishda xatolik" });
+      if (!row)
+        return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+      const match = await bcrypt.compare(oldPassword, row.password);
+      if (!match)
+        return res.status(401).json({ error: "Eski parol noto‘g‘ri" });
+
+      const hash = bcrypt.hashSync(newPassword, 10);
+      db.run(
+        `UPDATE users SET password = ? WHERE id = ?`,
+        [hash, req.user.sub],
+        (err) => {
+          if (err)
+            return res
+              .status(500)
+              .json({ error: "Parolni yangilashda xatolik" });
+          res.status(200).json({ message: "Parol muvaffaqiyatli yangilandi" });
+        }
+      );
+    }
+  );
+};
+
 module.exports = {
   getMe,
   deleteMe,
+  comparePassword,
+  changePassword,
 };

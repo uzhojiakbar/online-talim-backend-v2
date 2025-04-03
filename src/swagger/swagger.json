@@ -7,12 +7,12 @@
   },
   "servers": [
     {
-      "url": "http://37.27.215.130:5050",
-      "description": "Mexroj server"
-    },
-    {
       "url": "http://localhost:5013",
       "description": "Local server"
+    },
+    {
+      "url": "http://37.27.215.130:5050",
+      "description": "Mexroj server"
     }
   ],
   "paths": {
@@ -242,6 +242,135 @@
           },
           "500": {
             "description": "Serverda xatolik || O‘chirishda xatolik"
+          }
+        }
+      }
+    },
+    "/api/user/compare-password": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Parolni tekshirish",
+        "description": "Foydalanuvchi o‘z parolini bazadagi bilan solishtiradi. Masalan: sozlamalarda parolni o‘zgartirishdan oldin, parolni tasdiqlashda foydalaniladi.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "Foydalanuvchi hozirgi paroli",
+                    "example": "string"
+                  }
+                },
+                "required": ["password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Parol solishtirildi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "response": {
+                      "type": "boolean",
+                      "example": true,
+                      "description": "Parol mos keladimi yoki yo‘q"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parol yuborilmagan"
+          },
+          "401": {
+            "description": "Token mavjud emas yoki noto‘g‘ri"
+          },
+          "403": {
+            "description": "Token muddati tugagan yoki noto‘g‘ri || Kirish taqiqlangan"
+          },
+          "404": {
+            "description": "Foydaluvchi topilmadi"
+          },
+          "500": {
+            "description": "Serverda xatolik"
+          }
+        }
+      }
+    },
+    "/api/user/password/change": {
+      "patch": {
+        "tags": ["User"],
+        "summary": "Parolni yangilash",
+        "description": "Foydalanuvchi hozirgi parolini kiritgan holda yangi parolga almashtiradi. Eski parol to‘g‘ri bo‘lishi shart.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oldPassword": {
+                    "type": "string",
+                    "description": "Hozirgi (eski) parol",
+                    "example": "oldParol123"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "description": "Yangi parol (kamida 6 ta belgi)",
+                    "example": "YangiParol456"
+                  }
+                },
+                "required": ["oldPassword", "newPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Parol muvaffaqiyatli yangilandi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Parol muvaffaqiyatli yangilandi"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parollar to‘liq emas yoki noto‘g‘ri formatda"
+          },
+          "401": {
+            "description": "Eski parol noto‘g‘ri"
+          },
+          "404": {
+            "description": "Foydalanuvchi topilmadi"
+          },
+          "500": {
+            "description": "Server yoki bazaviy xatolik"
           }
         }
       }
