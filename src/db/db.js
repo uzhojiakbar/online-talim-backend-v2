@@ -1,6 +1,10 @@
 require("dotenv").config();
+const path = require("path");
+const fs = require("fs");
 const sqlite3 = require("sqlite3").verbose();
 const { v4: uuidv4 } = require("uuid");
+const { CustomError } = require("../components/customError");
+const { userFindByUsername, insertUser } = require("./queries");
 
 const DB_PATH = process.env.DATABASE_URL;
 
@@ -9,12 +13,18 @@ if (!DB_PATH) {
   process.exit(1);
 }
 
+const dir = path.dirname(DB_PATH);
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
 const db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) {
     console.error("❌ DB ulanishda xatolik:", err.message);
   } else {
     console.log("✅ SQLite DB ulanmoqda...");
     createUsersTable();
+    createTokenTable();
   }
 });
 
@@ -35,7 +45,31 @@ function createUsersTable() {
     if (err) {
       console.error("❌ Jadval yaratishda xatolik:", err.message);
     } else {
-      console.log("✅ users jadvali tayyor (uuid id bilan).");
+      console.log("✅ users jadvali tayyor");
+    }
+  });
+}
+
+function createTokenTable() {
+  const createTableSQL = `
+    CREATE TABLE IF NOT EXISTS refresh_tokens (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    token TEXT NOT NULL,
+    user_agent TEXT,
+    ip TEXT,
+    expires_at TEXT
+  );
+  `;
+
+  db.run(createTableSQL, (err) => {
+    if (err) {
+      console.error(
+        "❌ refresh_tokens Jadval yaratishda xatolik:",
+        err.message
+      );
+    } else {
+      console.log("✅ refresh_tokens jadvali tayyor");
     }
   });
 }
@@ -51,19 +85,30 @@ function createUser(user, callback) {
     role = "user",
   } = user;
 
-  const insertSQL = `
-    INSERT INTO users (id, username, password, firstname, lastname, group_name, role)
-    VALUES (?, ?, ?, ?, ?, ?, ?);
-  `;
+  db.get(userFindByUsername, [username], (err, row) => {
+    if (err) return callback(err);
 
-  db.run(
-    insertSQL,
-    [id, username, password, firstname, lastname, group, "user"],
-    function (err) {
-      if (err) return callback(err);
-      callback(null, { id });
+    // ------------- USER OLDIN QATNASHGANMI? -------------
+    if (row) {
+      return callback(
+        new CustomError(
+          409,
+          "Bunday usernamedagi foydalanuvchi allaqachon mavjud"
+        )
+      );
     }
-  );
+
+    // ------------- HAMMASI ok bo`lsa, user created qilamiz. -------------
+
+    db.run(
+      insertUser,
+      [id, username, password, firstname, lastname, group, role],
+      function (err) {
+        if (err) return callback(err);
+        callback(null, { id });
+      }
+    );
+  });
 }
 
 module.exports = {

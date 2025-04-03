@@ -74,15 +74,15 @@
                 "properties": {
                   "username": {
                     "type": "string",
-                    "example": "asd-admin1"
+                    "example": "string"
                   },
                   "password": {
                     "type": "string",
-                    "example": "asd-admin1"
+                    "example": "string"
                   },
                   "firstname": {
                     "type": "string",
-                    "example": "User Test"
+                    "example": "Hojiakbar"
                   },
                   "lastname": {
                     "type": "string",
@@ -95,7 +95,7 @@
                   "role": {
                     "type": "string",
                     "enum": ["admin", "user", "teacher"],
-                    "example": "admin"
+                    "example": "user"
                   }
                 },
                 "required": [
@@ -112,16 +112,75 @@
         },
         "responses": {
           "201": {
-            "description": "User registered successfully"
+            "description": "Foydaluvchi royxatdan o’tdi"
           },
           "400": {
-            "description": "Invalid input or user already exists"
+            "description": "Malumotlar noto'g'ri yoki foydaluvchi xatosi"
+          },
+          "409": {
+            "description": "Foydaluvchi oldindan bor"
+          },
+          "500": {
+            "description": "Serverda xatolik"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh-token": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Yangi access token olish",
+        "description": "Refresh token orqali yangi access token olinadi. Token JWT formatida tekshiriladi va bazada mavjud bo‘lsa, yangi access token qaytariladi. Aks holda, foydalanuvchi tizimga qayta kirishi kerak bo‘ladi.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh_token": {
+                    "type": "string"
+                  }
+                },
+                "required": ["refresh_token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Yangi access token muvaffaqiyatli qaytarildi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Refresh token yuborilmagan"
+          },
+          "403": {
+            "description": "Refresh token noto‘g‘ri, muddati tugagan yoki tizimda mavjud emas"
+          },
+          "500": {
+            "description": "Bazaviy yoki serverdagi xatolik"
           }
         }
       }
     }
   },
   "tags": [
+    {
+      "name": "user",
+      "description": "Foydalanuvchilarlar boshqaruvi (foydaluvchilarning o`zini boshqarishi uchun)"
+    },
     {
       "name": "Auth",
       "description": "Avtorizatsiya uchun pointlar"
