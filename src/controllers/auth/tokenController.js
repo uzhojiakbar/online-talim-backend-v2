@@ -84,4 +84,5 @@ module.exports = {
   deleteAllUserTokens,
   saveAccessToken,
   findAccessToken,
+  deleteAccessToken,
 };

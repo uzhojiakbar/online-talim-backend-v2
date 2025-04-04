@@ -11,6 +11,8 @@ const {
   saveRefreshToken,
   findRefreshToken,
   saveAccessToken,
+  deleteAccessToken,
+  deleteRefreshToken,
 } = require("./tokenController");
 
 const register = (req, res) => {
@@ -200,8 +202,26 @@ const refreshToken = (req, res) => {
   );
 };
 
+const logout = (req, res) => {
+  const token = req.token;
+
+  console.log("USER TOKEN");
+
+  if (!token) {
+    return res.status(401).json({ error: "Token talab qilinadi" });
+  }
+
+  deleteAccessToken(token, (err) => {
+    if (err) {
+      return res.status(500).json({ error: "Tokenni o‘chirishda xatolik" });
+    }
+    res.status(200).json({ message: "Muvaffaqiyatli chiqish" });
+  });
+};
+
 module.exports = {
   register,
   login,
   refreshToken,
+  logout,
 };

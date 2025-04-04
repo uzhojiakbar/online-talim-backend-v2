@@ -183,6 +183,42 @@
         }
       }
     },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Foydalanuvchini tizimdan chiqarish (logout)",
+        "description": "Foydalanuvchining access tokenini bazadan o‘chiradi. Token yuborilishi shart.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Foydalanuvchi tizimdan chiqdi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Foydalanuvchi tizimdan chiqdi"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token yuborilmagan"
+          },
+          "500": {
+            "description": "Tokenni bazadan o‘chirishda xatolik"
+          }
+        }
+      }
+    },
     "/api/user/me": {
       "get": {
         "tags": ["User"],

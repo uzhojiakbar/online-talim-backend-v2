@@ -1,5 +1,9 @@
 const { db } = require("../../db/db");
 const bcrypt = require("bcrypt");
+const {
+  deleteAccessToken,
+  deleteRefreshToken,
+} = require("../auth/tokenController");
 
 const getMe = (req, res) => {
   const query = `SELECT id, username, firstname, lastname, group_name, role FROM users WHERE id = ?`;

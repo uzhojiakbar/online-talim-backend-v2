@@ -35,6 +35,7 @@ function authenticateToken(req, res, next) {
       }
 
       req.user = decoded;
+      req.token = token;
 
       const selectUserQuery = `
         SELECT id, username, firstname, lastname, group_name, role
