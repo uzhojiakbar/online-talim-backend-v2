@@ -7,7 +7,11 @@ const jwt = require("jsonwebtoken");
 const {
   userFindByUsernameForLogin: userFindByUsername,
 } = require("../../db/queries");
-const { saveRefreshToken, findRefreshToken } = require("./tokenController");
+const {
+  saveRefreshToken,
+  findRefreshToken,
+  saveAccessToken,
+} = require("./tokenController");
 
 const register = (req, res) => {
   try {
@@ -72,6 +76,9 @@ const login = (req, res) => {
         Date.now() + 7 * 24 * 60 * 60 * 1000
       ).toISOString(); // 7 kun
 
+      const expiresAtAccess = new Date(
+        Date.now() + 15 * (60 * 1000)
+      ).toISOString(); // 15 daqiqa
       saveRefreshToken(
         {
           user_id: user.id,
@@ -92,6 +99,20 @@ const login = (req, res) => {
             access_token: accessToken,
             refresh_token: refreshToken,
           });
+        }
+      );
+
+      saveAccessToken(
+        {
+          user_id: user.id,
+          token: accessToken,
+          expires_at: expiresAtAccess,
+        },
+        (err) => {
+          if (err) {
+            console.error("❌ Access tokenni saqlashda xatolik:", err.message);
+            return res.status(500).json({ error: "Tokenni saqlashda xatolik" });
+          }
         }
       );
     }
@@ -145,6 +166,29 @@ const refreshToken = (req, res) => {
           process.env.ACCESS_TOKEN_SECRET,
           {
             expiresIn: "15m",
+          }
+        );
+
+        const expiresAtAccess = new Date(
+          Date.now() + 15 * (60 * 1000)
+        ).toISOString();
+
+        saveAccessToken(
+          {
+            user_id: decoded.sub,
+            token: newAccessToken,
+            expires_at: expiresAtAccess,
+          },
+          (err) => {
+            if (err) {
+              console.error(
+                "❌ Access tokenni saqlashda xatolik:",
+                err.message
+              );
+              return res
+                .status(500)
+                .json({ error: "Tokenni saqlashda xatolik" });
+            }
           }
         );
 

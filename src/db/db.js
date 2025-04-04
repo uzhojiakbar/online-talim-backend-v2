@@ -25,6 +25,7 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
     console.log("✅ SQLite DB ulanmoqda...");
     createUsersTable();
     createTokenTable();
+    createAccessTokenTable();
   }
 });
 
@@ -70,6 +71,25 @@ function createTokenTable() {
       );
     } else {
       console.log("✅ refresh_tokens jadvali tayyor");
+    }
+  });
+}
+
+function createAccessTokenTable() {
+  const createTableSQL = `
+    CREATE TABLE IF NOT EXISTS access_tokens (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    token TEXT NOT NULL,
+    expires_at TEXT
+  );
+  `;
+
+  db.run(createTableSQL, (err) => {
+    if (err) {
+      console.error("❌ access_tokens Jadval yaratishda xatolik:", err.message);
+    } else {
+      console.log("✅ access_tokens jadvali tayyor");
     }
   });
 }
