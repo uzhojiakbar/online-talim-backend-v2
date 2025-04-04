@@ -438,6 +438,35 @@
             "bearerAuth": []
           }
         ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "firstname",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Foydalanuvchi ismi bo‘yicha filter",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "lastname",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Foydalanuvchi familiyasi bo‘yicha filter",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "username",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Foydalanuvchi username bo‘yicha filter",
+            "required": false
+          }
+        ],
         "responses": {
           "200": {
             "description": "Foydalanuvchilar ro‘yxati",
@@ -451,6 +480,18 @@
                       "items": {
                         "$ref": "#/components/schemas/userDTO"
                       }
+                    },
+                    "usersCount": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "adminsCount": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "teachersCount": {
+                      "type": "integer",
+                      "example": 0
                     }
                   }
                 }
