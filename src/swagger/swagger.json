@@ -392,9 +392,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstname": { "type": "string", "example": "Ali" },
-                  "lastname": { "type": "string", "example": "Valiyev" },
-                  "group_name": { "type": "string", "example": "36-TAT-21" },
+                  "firstname": { "type": "string", "example": "Hojiakbar" },
+                  "lastname": { "type": "string", "example": "Murodillayev" },
+                  "group_name": { "type": "string", "example": "36-ATT-23" },
                   "role": {
                     "type": "string",
                     "enum": ["user", "admin", "teacher"],
@@ -427,9 +427,54 @@
           }
         }
       }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Barcha foydalanuvchilar ro‘yxatini olish",
+        "description": "Faqat admin pagoni bilan barcha foydalanuvchilarni ro‘yxatini olish. JWT token talab qilinadi.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Foydalanuvchilar ro‘yxati",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/userDTO"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token yuborilmagan yoki noto‘g‘ri"
+          },
+          "403": {
+            "description": "Faqat adminlar kirishi mumkin"
+          },
+          "500": {
+            "description": "Server xatoligi"
+          }
+        }
+      }
     }
   },
   "tags": [
+    {
+      "name": "Admin",
+      "description": "Adminlar boshqaruvi"
+    },
     {
       "name": "User",
       "description": "Foydalanuvchilarlar boshqaruvi (foydaluvchilarning o`zini boshqarishi uchun)"
