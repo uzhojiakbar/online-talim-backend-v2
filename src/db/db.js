@@ -5,6 +5,7 @@ const sqlite3 = require("sqlite3").verbose();
 const { v4: uuidv4 } = require("uuid");
 const { CustomError } = require("../components/customError");
 const { userFindByUsername, insertUser } = require("./queries");
+const { roles } = require("../utils/roles");
 
 const DB_PATH = process.env.DATABASE_URL;
 
@@ -30,21 +31,28 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
 });
 
 function createUsersTable() {
+  const roleCheckSQL = roles.map((role) => `'${role}'`).join(", ");
+
+  //* userID: -- AB1234567
+  //* phone  -- 998901234567
+  //* password  -- 998901234567
   const createTableSQL = `
     CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      username TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
+      id TEXT PRIMARY KEY,                  
+      phone TEXT UNIQUE NOT NULL,          
+      email TEXT,
+      password TEXT NOT NULL,               
       firstname TEXT,
       lastname TEXT,
       group_name TEXT,
-      role TEXT CHECK(role IN ('admin', 'user', 'teacher')) NOT NULL DEFAULT 'user'
+      role TEXT CHECK(role IN (${roleCheckSQL})),
+      avatar TEXT
     );
   `;
 
   db.run(createTableSQL, (err) => {
     if (err) {
-      console.error("❌ Jadval yaratishda xatolik:", err.message);
+      console.error("❌ Users Jadval yaratishda xatolik:", err.message);
     } else {
       console.log("✅ users jadvali tayyor");
     }
@@ -94,44 +102,6 @@ function createAccessTokenTable() {
   });
 }
 
-function createUser(user, callback) {
-  const id = uuidv4();
-  const {
-    username,
-    password,
-    firstname = "",
-    lastname = "",
-    group = "",
-    role = "user",
-  } = user;
-
-  db.get(userFindByUsername, [username], (err, row) => {
-    if (err) return callback(err);
-
-    // ------------- USER OLDIN QATNASHGANMI? -------------
-    if (row) {
-      return callback(
-        new CustomError(
-          409,
-          "Bunday usernamedagi foydalanuvchi allaqachon mavjud"
-        )
-      );
-    }
-
-    // ------------- HAMMASI ok bo`lsa, user created qilamiz. -------------
-
-    db.run(
-      insertUser,
-      [id, username, password, firstname, lastname, group, role],
-      function (err) {
-        if (err) return callback(err);
-        callback(null, { id });
-      }
-    );
-  });
-}
-
 module.exports = {
   db,
-  createUser,
 };

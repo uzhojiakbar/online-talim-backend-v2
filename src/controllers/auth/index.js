@@ -1,7 +1,5 @@
 // src/controllers/auth/index.js
-const { CustomError } = require("../../components/customError");
-const { createUser, db } = require("../../db/db");
-const { RegisterValidation } = require("./validation");
+const { db } = require("../../db/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {
@@ -14,25 +12,24 @@ const {
   deleteAccessToken,
   deleteRefreshToken,
 } = require("./tokenController");
+const { createUser } = require("../../services/userService");
 
 const register = (req, res) => {
-  try {
-    const userData = new RegisterValidation(req.body);
+  const userData = {
+    ...req.body,
+    avatar: req.file ? `/uploads/avatars/${req.file.filename}` : undefined,
+  };
 
-    createUser(userData, (err, result) => {
-      if (err) {
-        if (err instanceof CustomError) {
-          return res.status(err.code).json({ error: err.message });
-        }
-        return res.status(500).json({ error: "Server xatosi" });
-      }
+  createUser(userData, (err, result) => {
+    if (err) {
+      return res.status(err.code || 500).json({ error: err.message });
+    }
 
-      res.status(201).json({ message: "User created" });
+    res.status(201).json({
+      message: "Foydalanuvchi yaratildi",
+      id: result.id,
     });
-  } catch (error) {
-    const status = error.code || 400;
-    res.status(status).json({ error: error.message });
-  }
+  });
 };
 
 const login = (req, res) => {
